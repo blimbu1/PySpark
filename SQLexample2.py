@@ -15,6 +15,8 @@ def ddouble(a):
 	return a*a
 
 abc = udf(ddouble, IntegerType())
+sql.udf.register("hello",ddouble)
+
 rdd1 = sc.textFile("file:///home/cloudera/Desktop/marks.txt")
 records = rdd1.map(splitrecord) 
 schema123 = StructType(
@@ -26,4 +28,10 @@ print (records.collect())
 df1 = sql.createDataFrame(records,schema123)
 df1.show()
 df1.printSchema()
+
 df1.select('name','age', abc('age').alias('age squared')).show()
+
+#This is to use sql
+df1.registerTempTable("TestTable")
+print ("------------------------------------->")
+sql.sql("select name, age , marks, hello(marks) from TestTable").show()
